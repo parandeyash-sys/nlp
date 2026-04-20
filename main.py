@@ -34,14 +34,6 @@ def main():
     print("\n--- BASELINE RESULTS ---")
     evaluate(data["test"]["label"], baseline_preds)
 
-    # SBERT
-    print("\n🔹 Running SBERT Model...")
-    sbert_model = SBERTModel()
-    sbert_preds = sbert_model.predict(data["test"])
-
-    print("\n--- SBERT RESULTS ---")
-    evaluate(data["test"]["label"], sbert_preds)
-
     # =========================
     # STS TASK
     # =========================
@@ -51,15 +43,26 @@ def main():
     print("🧹 Preprocessing STS...")
     sts_data = preprocess_dataset(sts_data)
 
-    print("\n🔹 Running STS Similarity...")
+    for model_name in ['MiniLM', 'MPNet', 'Elite']:
+        print(f"\n=====================================")
+        print(f"🔹 Running Model: {model_name}")
+        print(f"=====================================")
+        
+        sbert_model = SBERTModel(model_name)
+        sbert_preds = sbert_model.predict(data["test"])
 
-    pred_scores = compute_sts_scores(sbert_model, sts_data["validation"])
-    true_scores = sts_data["validation"]["label"]
+        print(f"--- {model_name} PARAPHRASE RESULTS ---")
+        evaluate(data["test"]["label"], sbert_preds)
 
-    correlation = pearsonr(pred_scores, true_scores)
+        print(f"\n🔹 Running STS Similarity for {model_name}...")
+        pred_scores = compute_sts_scores(sbert_model, sts_data["validation"])
+        true_scores = sts_data["validation"]["label"]
 
-    print("\n--- STS RESULTS ---")
-    print("Pearson Correlation:", correlation[0])
+        correlation = pearsonr(pred_scores, true_scores)
+
+        print(f"--- {model_name} STS RESULTS ---")
+        print("Pearson Correlation:", correlation[0])
+
 
     # =========================
     # VISUALIZATION

@@ -27,8 +27,21 @@ def has_negation(sentence):
     return any(n in words for n in NEGATIONS)
 
 class SBERTModel:
-    def __init__(self):
-        self.model = SentenceTransformer('all-MiniLM-L6-v2')
+    def __init__(self, model_choice='MiniLM'):
+        self.model_choice = model_choice
+        self.is_cross_encoder = False
+        
+        if model_choice == 'MiniLM':
+            self.model = SentenceTransformer('all-MiniLM-L6-v2')
+        elif model_choice == 'MPNet':
+            self.model = SentenceTransformer('all-mpnet-base-v2')
+        elif model_choice == 'Elite':
+            from sentence_transformers import CrossEncoder
+            self.model = CrossEncoder('cross-encoder/stsb-deberta-v3-large')
+            self.is_cross_encoder = True
+        else:
+            self.model = SentenceTransformer('all-MiniLM-L6-v2')
+            
         self.nli = pipeline("text-classification", model="cross-encoder/nli-deberta-v3-base")
 
     def is_contradiction(self, s1, s2):
@@ -36,11 +49,11 @@ class SBERTModel:
         return result['label'] == 'CONTRADICTION'
 
     def similarity(self, s1, s2):
-        # emb1 = self.model.encode(s1, convert_to_tensor=True)
-        # emb2 = self.model.encode(s2, convert_to_tensor=True)
-        # return util.cos_sim(emb1, emb2).item()
-        embeddings = self.model.encode([s1, s2], convert_to_tensor=True)
-        score = util.cos_sim(embeddings[0], embeddings[1]).item()
+        if self.is_cross_encoder:
+            score = float(self.model.predict([s1, s2]))
+        else:
+            embeddings = self.model.encode([s1, s2], convert_to_tensor=True)
+            score = util.cos_sim(embeddings[0], embeddings[1]).item()
 
         # Negation penalty
         if has_negation(s1) != has_negation(s2):
