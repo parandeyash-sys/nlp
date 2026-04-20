@@ -1,58 +1,98 @@
-# Paraphrase Detection & Semantic Textual Similarity (STS)
+# 🧠 Multi-Model Paraphrase Detection & Semantic Textual Similarity (STS)
 
-This project implements a high-performance NLP system to detect paraphrases and calculate semantic similarity using state-of-the-art Transformer models. It focuses on evaluating model robustness across various structural complexities.
+This project implements a state-of-the-art NLP system designed to detect paraphrases and calculate semantic similarity. By leveraging multiple Transformer architectures and advanced linguistic heuristics (NLI, Negation, and Antonyms), it provides a robust framework for understanding textual relationships.
 
 ## 🚀 Key Features
 
-*   **Models**: Powered by **Sentence-BERT (SBERT)** using the `all-MiniLM-L6-v2` architecture and enhanced with **NLI Cross-Encoders** for contradiction handling.
-*   **Tasks**:
-    *   **Paraphrase Detection**: Binary classification (Yes/No) using an optimized similarity threshold of **0.75**.
-    *   **Semantic Textual Similarity (STS)**: Regression task mapping similarity to a 0.0–1.0 scale (normalized from human 0–5 scores).
-*   **Datasets**: Evaluated on the industry-standard **GLUE Benchmark** datasets:
-    *   **MRPC** (Microsoft Research Paraphrase Corpus): ~5,400 pairs.
-    *   **STSb** (Semantic Textual Similarity Benchmark): ~8,600 pairs.
+*   **Triple Model Support**: Choose between three optimized architectures based on your latency and precision requirements.
+*   **Advanced Linguistic Heuristics**:
+    *   **NLI Contradiction Detection**: Automatically zeros out similarity scores if a logical contradiction is detected (e.g., "The sun is hot" vs "The sun is cold").
+    *   **Negation Handling**: Intelligently identifies mismatched negations to prevent false positives.
+    *   **Antonym Sensitivity**: Penalizes similarity when opposite word pairs (e.g., "male" vs "female") are present.
+*   **Interactive UI**: A sleek Streamlit-powered dashboard for real-time testing.
+*   **Benchmarking Suite**: Built-in support for evaluating models on industry-standard **GLUE** datasets (MRPC and STS).
 
-## 📊 Documentation & Analysis Reports
+---
 
-This repository contains a comprehensive suite of professional documentation designed for a viva presentation, located in the root and the `project_analysis/` folder:
+## 🏗 Model Comparison
 
-### 📄 Core Project Info
-*   **`project_info.docx`**: Advanced overview of the project architecture, justification for the 0.75 similarity threshold, and the scientific rationale behind dataset selection and standard GLUE splits.
+The system supports three distinct model configurations:
 
-### 📈 Structural & Statistical Reports
-*   **`project_analysis/project_analysis_2.docx`**: High-resolution performance table grouping sentence pairs by their structural profiles (sentence/word count mismatch). It provides mean results for accurate statistical representation.
-*   **`project_analysis/accuracy_analysis.docx`**: A granular histogram based on the **full test dataset (3,225 pairs)**. It identifies how accuracy scales with word count mismatch and explains the **"Hard vs. Easy Negatives" paradox**.
-*   **`project_analysis/sts_correlation_analysis.docx`**: Scatter plot visualizing the correlation between human judgment and model predictions.
-*   **`project_analysis/error_distribution_analysis.docx`**: Histogram showing the distribution of absolute error magnitudes (MAE).
+| Model Identity | HuggingFace Architecture | Type | Primary Strength |
+| :--- | :--- | :--- | :--- |
+| **MiniLM** | `all-MiniLM-L6-v2` | Bi-Encoder | **Speed & Efficiency**: Ideal for real-time applications. |
+| **MPNet** | `all-mpnet-base-v2` | Bi-Encoder | **Balanced Performance**: High quality with reasonable latency. |
+| **Elite (DeBERTa)** | `stsb-roberta-large` | Cross-Encoder | **Maximum Precision**: Highest accuracy by comparing pairs directly. |
 
-## 🛠 Project Structure
+---
+
+## 🔬 Architecture & Logic
+
+Our `SBERTModel` class integrates several layers of validation to ensure semantic integrity:
+
+1.  **Similarity Calculation**:
+    *   **Bi-Encoders (MiniLM/MPNet)**: Use Cosine Similarity between dense vector embeddings.
+    *   **Cross-Encoders (Elite)**: Process sentence pairs simultaneously for fine-grained attention.
+2.  **Linguistic Filters**:
+    *   **NLI Check**: Uses `cross-encoder/nli-deberta-v3-base` to ensure that similarity scores respect logical entailment.
+    *   **Negation Penalty**: Reduces similarity by 50% if negation presence differs between sentences.
+    *   **Opposite Check**: Reduces similarity by 70% if explicit antonyms are detected.
+
+---
+
+## 📊 Documentation & Analysis
+
+The repository includes detailed analytical reports generated through rigorous testing:
+
+*   [project_info.docx](file:///home/yash/nlp/suchir_nlp_3models/project_info.docx): Advanced overview and justification for the **0.75 similarity threshold**.
+*   **Project Analysis Folder**:
+    *   `accuracy_analysis.docx`: Granular histogram analyzing robustness against word count mismatches.
+    *   `sts_correlation_analysis.docx`: Visualization of Pearson correlation between model output and human judgment.
+    *   `error_distribution_analysis.docx`: Mapping the absolute error magnitudes across datasets.
+
+---
+
+## 🛠 Installation & Usage
+
+### 1. Requirements
+Ensure you have Python 3.8+ installed. Install the dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Run Interactive UI
+The Streamlit app allows you to select models and test custom sentence pairs.
+```bash
+streamlit run app.py
+```
+
+### 3. Run Benchmark Evaluation
+Execute the batch script to see comparative performance on MRPC and STS datasets.
+```bash
+python3 main.py
+```
+
+---
+
+## 🏆 Project Structure
 
 ```text
 .
-├── main.py                # Main execution script
-├── src/                   # Model and data loading logic
-│   ├── sbert_model.py     # SBERT and Cross-Encoder implementation
-│   └── data_loader.py     # GLUE dataset integration
-├── project_info.docx      # Comprehensive Project Documentation
-└── project_analysis       # Analytical Visualizations Folder
-    ├── project_analysis_2.docx
-    ├── accuracy_analysis.docx
-    ├── sts_correlation_analysis.docx
-    └── error_distribution_analysis.docx
+├── main.py                # Main benchmark execution script
+├── app.py                 # Streamlit web application
+├── src/                   # Core implementation
+│   ├── sbert_model.py     # Multi-model selection and heuristic logic
+│   ├── data_loader.py     # GLUE dataset integration
+│   └── evaluation.py      # Metric calculation (Accuracy, F1, Pearsonr)
+├── project_info.docx      # Comprehensive documentation
+└── project_analysis/      # Generated performance visualizations
 ```
 
-## 🏆 Project Achievements & Outcomes
+---
 
-Through rigorous structural analysis and full-dataset evaluation (3,225 samples), this project has achieved the following:
+## 🏅 Performance Outcomes
 
-*   **Verified Robustness**: Demonstrated that the SBERT model maintains semantic integrity even when faced with significant word count mismatches.
-*   **Identification of the "Hard Negative" Paradox**: Scientifically documented through granular histograms why small structural changes are more challenging than large ones.
-*   **Industrial Benchmark Alignment**: Successfully mapped standard GLUE evaluation metrics into a professional reporting suite adapted for viva-level scrutiny.
-
-## 📊 Performance Summary (Final Evaluation)
-
-*   **Global Accuracy (Paraphrase Detection)**: **83.67%**
-    *   This score reflects the model's peak reliability in detecting semantic equivalence across the validated dataset.
-*   **Mean Absolute Error (STS)**: **0.1148**
-    *   This demonstrates a high degree of precision, showing that on average, our model's similarity score is within 0.11 of human-annotated values.
-*   **Threshold Efficiency**: The **0.75 threshold** was empirically validated as the optimal balance for achieving this high-precision paraphrase detection.
+Through extensive evaluation on the **GLUE Benchmark**, this project maintains:
+- **High Semantic Integrity**: Handling "Hard Negatives" where structural similarity masks semantic differences.
+- **Empirical Validation**: Validated similarity thresholds for real-world paraphrase identification.
+- **Multi-Architecture Comparison**: Clear documentation of trade-offs between speed (MiniLM) and depth (Elite).
