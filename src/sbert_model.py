@@ -37,7 +37,7 @@ class SBERTModel:
             self.model = SentenceTransformer('all-mpnet-base-v2')
         elif model_choice == 'Elite':
             from sentence_transformers import CrossEncoder
-            self.model = CrossEncoder('cross-encoder/stsb-deberta-v3-large')
+            self.model = CrossEncoder('cross-encoder/stsb-roberta-large')
             self.is_cross_encoder = True
         else:
             self.model = SentenceTransformer('all-MiniLM-L6-v2')
