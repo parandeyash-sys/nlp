@@ -34,10 +34,17 @@ The project includes four primary analytical documents located in the `project_a
 ```text
 .
 ├── main.py                # Main benchmark execution script
-├── app.py                 # Streamlit Interactive UI
+├── app.py                 # Streamlit web application (Interactive UI)
 ├── src/                   # Model and data loading logic
-├── project_info.docx      # Core project rationale and architecture documentation
+│   ├── sbert_model.py     # Multi-model selection and heuristic logic
+│   ├── data_loader.py     # GLUE dataset integration
+│   └── evaluation.py      # Metric calculation (Accuracy, F1, Pearsonr)
+├── project_info.docx      # Comprehensive Project Documentation
 └── project_analysis/      # Analytical Visualizations Folder
+    ├── project_analysis_2.docx
+    ├── accuracy_analysis.docx
+    ├── sts_correlation_analysis.docx
+    └── error_distribution_analysis.docx
 ```
 
 ## 🏆 Project Achievements & Outcomes
